@@ -22,6 +22,7 @@
                         <ul class="navbar-nav me-auto">
                             <li class="nav-item"><a class="nav-link" href="{{ path('ticket_index') }}">Tickets</a></li>
                         </ul>
+                        <a class="btn btn-dark btn-sm me-3" href="{{ path('ticket_new') }}">Nouveau ticket</a>
                         <span class="navbar-text small me-3">{{ app.user.fullName }}{% if is_granted('ROLE_AGENT') %} · agent{% endif %}</span>
                         <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_logout') }}">Déconnexion</a>
                     </div>

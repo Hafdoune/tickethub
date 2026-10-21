@@ -52,7 +52,7 @@
                     {% for ticket in tickets %}
                         <tr class="ticket-row">
                             <td class="text-secondary">{{ ticket.id }}</td>
-                            <td>{{ ticket.title }}</td>
+                            <td><a href="{{ path('ticket_show', {id: ticket.id}) }}" class="text-decoration-none fw-medium">{{ ticket.title }}</a></td>
                             <td>{{ ticket.category }}</td>
                             <td>{{ badges.priority(ticket.priority) }}</td>
                             <td>{{ badges.status(ticket.status) }}</td>

@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+{% import 'ticket/_badges.html.twig' as badges %}
+
+{% block title %}#{{ ticket.id }} {{ ticket.title }} · TicketHub{% endblock %}
+
+{% block body %}
+    <a href="{{ path('ticket_index') }}" class="small text-decoration-none">← Tous les tickets</a>
+
+    <div class="d-flex flex-wrap align-items-center gap-2 my-3">
+        <h1 class="h3 mb-0 me-2">#{{ ticket.id }} · {{ ticket.title }}</h1>
+        {{ badges.status(ticket.status) }}
+        {{ badges.priority(ticket.priority) }}
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="small text-secondary mb-2">
+                        {{ ticket.author }} · {{ ticket.createdAt|date('d/m/Y à H:i') }}
+                    </div>
+                    <div class="ticket-description">{{ ticket.description|nl2br }}</div>
+                </div>
+            </div>
+
+            <h2 class="h5 mb-3">Échanges ({{ ticket.comments|length }})</h2>
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    {% for comment in ticket.comments %}
+                        <div class="comment py-3 {{ comment.author.isAgent ? 'comment-agent' }}" id="comment-{{ comment.id }}">
+                            <div class="small text-secondary mb-1">
+                                <strong class="text-body">{{ comment.author }}</strong>
+                                {% if comment.author.isAgent %}<span class="badge text-bg-primary ms-1">Support</span>{% endif %}
+                                · {{ comment.createdAt|date('d/m/Y H:i') }}
+                            </div>
+                            {{ comment.content|nl2br }}
+                        </div>
+                    {% else %}
+                        <p class="text-secondary mb-0">Aucun échange pour l'instant.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if comment_form %}
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        {{ form_start(comment_form) }}
+                            {{ form_widget(comment_form) }}
+                            <button class="btn btn-dark mt-2" type="submit">Répondre</button>
+                        {{ form_end(comment_form) }}
+                    </div>
+                </div>
+            {% elseif ticket.closed %}
+                <div class="alert alert-secondary">Ce ticket est fermé.</div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between"><span class="text-secondary">Catégorie</span>{{ ticket.category }}</li>
+                    <li class="list-group-item d-flex justify-content-between"><span class="text-secondary">Client</span>{{ ticket.author }}</li>
+                    <li class="list-group-item d-flex justify-content-between"><span class="text-secondary">Agent</span>{{ ticket.assignee ?? 'Non assigné' }}</li>
+                    <li class="list-group-item d-flex justify-content-between"><span class="text-secondary">Mis à jour</span>{{ ticket.updatedAt|date('d/m/Y H:i') }}</li>
+                    {% if ticket.closedAt %}
+                        <li class="list-group-item d-flex justify-content-between"><span class="text-secondary">Fermé le</span>{{ ticket.closedAt|date('d/m/Y H:i') }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            {% if manage_form %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h2 class="h6 mb-3">Traitement</h2>
+                        {{ form_start(manage_form) }}
+                            {{ form_row(manage_form.status) }}
+                            {{ form_row(manage_form.assignee) }}
+                            <button class="btn btn-primary w-100" type="submit">Mettre à jour</button>
+                        {{ form_end(manage_form) }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="d-grid gap-2">
+                {% if is_granted('TICKET_EDIT', ticket) %}
+                    <a class="btn btn-outline-dark" href="{{ path('ticket_edit', {id: ticket.id}) }}">Modifier</a>
+                {% endif %}
+                {% if is_granted('TICKET_CLOSE', ticket) %}
+                    <form method="post" action="{{ path('ticket_close', {id: ticket.id}) }}" onsubmit="return confirm('Fermer ce ticket ?')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('close-ticket-' ~ ticket.id) }}">
+                        <button class="btn btn-outline-danger w-100" type="submit">Fermer le ticket</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

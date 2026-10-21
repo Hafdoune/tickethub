@@ -1,0 +1,9 @@
+{{ form_start(form) }}
+    {{ form_row(form.title) }}
+    <div class="row">
+        <div class="col-md-6">{{ form_row(form.category) }}</div>
+        <div class="col-md-6">{{ form_row(form.priority) }}</div>
+    </div>
+    {{ form_row(form.description) }}
+    <button class="btn btn-dark" type="submit">{{ button_label }}</button>
+{{ form_end(form) }}

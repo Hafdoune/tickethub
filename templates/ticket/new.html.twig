@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau ticket · TicketHub{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="h3 mb-3">Nouveau ticket</h1>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    {{ include('ticket/_form.html.twig', {button_label: 'Envoyer le ticket'}) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
