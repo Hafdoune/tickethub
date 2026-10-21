@@ -4,8 +4,8 @@
 .phpunit.cache
 /var/
 /vendor/
-/assets/vendor/
-/public/assets/
+/node_modules/
+/public/build/
 .env.local
 .env.*.local
 compose.override.yaml

@@ -1,3 +1,15 @@
+FROM node:24-alpine AS assets
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY vite.config.ts tsconfig.json ./
+COPY assets ./assets
+RUN npm run build
+
+
 FROM dunglas/frankenphp:1-php8.3 AS base
 
 WORKDIR /app
@@ -24,6 +36,7 @@ COPY composer.json composer.lock symfony.lock ./
 RUN composer install --no-scripts --no-interaction --prefer-dist
 
 COPY . .
+COPY --from=assets /app/public/build public/build
 RUN composer run-script post-install-cmd
 
 
@@ -36,7 +49,7 @@ COPY composer.json composer.lock symfony.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --no-interaction --prefer-dist
 
 COPY . .
+COPY --from=assets /app/public/build public/build
 RUN composer dump-autoload --no-dev --classmap-authoritative \
     && composer run-script --no-dev post-install-cmd \
-    && php bin/console asset-map:compile \
     && chown -R www-data:www-data var
