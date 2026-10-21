@@ -2,6 +2,10 @@
     "extends": "@vue/tsconfig/tsconfig.dom.json",
     "compilerOptions": {
         "strict": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./assets/*"]
+        },
         "noUncheckedIndexedAccess": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,

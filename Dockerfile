@@ -7,6 +7,7 @@ RUN npm ci
 
 COPY vite.config.ts tsconfig.json ./
 COPY assets ./assets
+COPY templates ./templates
 RUN npm run build
 
 
