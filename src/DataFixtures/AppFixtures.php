@@ -35,6 +35,32 @@ class AppFixtures extends Fixture
         'Décodeur TV sans signal',
     ];
 
+    private const DETAILS = [
+        'Le problème a commencé hier soir vers 21h et il est toujours présent ce matin.',
+        'J\'ai déjà redémarré la box et le téléphone plusieurs fois, sans résultat.',
+        'Cela arrive surtout en fin de journée, quand toute la famille est connectée.',
+        'Je suis client depuis plus de cinq ans et c\'est la première fois que cela arrive.',
+        'Le voyant de la box clignote en orange depuis la dernière mise à jour.',
+        'J\'ai contacté le service client par téléphone mais l\'attente était trop longue.',
+        'Merci de me rappeler sur mon numéro mobile entre 9h et 18h.',
+        'Je travaille à domicile, ce problème me bloque complètement.',
+    ];
+
+    private const AGENT_REPLIES = [
+        'Bonjour, merci pour votre message. Nous avons lancé un diagnostic à distance sur votre ligne.',
+        'Un incident est en cours dans votre secteur, nos équipes techniques interviennent.',
+        'Pouvez-vous nous confirmer si le problème persiste après un redémarrage complet de la box ?',
+        'Nous avons appliqué une correction sur votre compte, la modification sera visible sous 24h.',
+        'Un technicien passera chez vous demain matin entre 8h et 12h.',
+    ];
+
+    private const CUSTOMER_REPLIES = [
+        'Merci pour votre retour rapide, je vous tiens au courant.',
+        'Le problème est toujours là malgré le redémarrage.',
+        'C\'est réglé de mon côté, merci beaucoup !',
+        'Je serai disponible demain matin, merci.',
+    ];
+
     public function __construct(private readonly UserPasswordHasherInterface $hasher)
     {
     }
@@ -93,7 +119,7 @@ class AppFixtures extends Fixture
 
         $ticket = (new Ticket($createdAt))
             ->setTitle($faker->randomElement(self::SUBJECTS))
-            ->setDescription($faker->paragraphs(2, true))
+            ->setDescription(implode(' ', $faker->randomElements(self::DETAILS, 3)))
             ->setPriority($faker->randomElement(TicketPriority::cases()))
             ->setCategory($faker->randomElement($categories))
             ->setAuthor($author);
@@ -107,7 +133,7 @@ class AppFixtures extends Fixture
                 $ticket->addComment(
                     (new Comment($createdAt->modify("+{$n} hours")))
                         ->setAuthor($n % 2 === 1 ? $agent : $author)
-                        ->setContent($faker->sentences(2, true))
+                        ->setContent($faker->randomElement($n % 2 === 1 ? self::AGENT_REPLIES : self::CUSTOMER_REPLIES))
                 );
             }
         }
