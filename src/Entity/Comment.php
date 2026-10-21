@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\CommentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
@@ -13,15 +14,18 @@ class Comment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['ticket:item', 'comment:item'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 5000)]
+    #[Groups(['ticket:item', 'comment:item'])]
     private ?string $content = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['ticket:item', 'comment:item'])]
     private ?User $author = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
@@ -29,6 +33,7 @@ class Comment
     private ?Ticket $ticket = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['ticket:item', 'comment:item'])]
     private \DateTimeImmutable $createdAt;
 
     public function __construct(?\DateTimeImmutable $createdAt = null)

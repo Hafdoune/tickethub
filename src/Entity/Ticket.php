@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
@@ -19,35 +20,43 @@ class Ticket
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['ticket:list', 'ticket:item'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 150)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 5, max: 150)]
+    #[Groups(['ticket:list', 'ticket:item'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 10)]
+    #[Groups(['ticket:item'])]
     private ?string $description = null;
 
     #[ORM\Column(length: 20, enumType: TicketStatus::class)]
+    #[Groups(['ticket:list', 'ticket:item'])]
     private TicketStatus $status = TicketStatus::Open;
 
     #[ORM\Column(length: 20, enumType: TicketPriority::class)]
+    #[Groups(['ticket:list', 'ticket:item'])]
     private TicketPriority $priority = TicketPriority::Medium;
 
     #[ORM\ManyToOne(inversedBy: 'tickets')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['ticket:list', 'ticket:item'])]
     private ?User $author = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    #[Groups(['ticket:list', 'ticket:item'])]
     private ?User $assignee = null;
 
     #[ORM\ManyToOne(inversedBy: 'tickets')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
+    #[Groups(['ticket:list', 'ticket:item'])]
     private ?Category $category = null;
 
     /**
@@ -55,15 +64,19 @@ class Ticket
      */
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'ticket', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['createdAt' => 'ASC'])]
+    #[Groups(['ticket:item'])]
     private Collection $comments;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['ticket:list', 'ticket:item'])]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['ticket:list', 'ticket:item'])]
     private \DateTimeImmutable $updatedAt;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups(['ticket:item'])]
     private ?\DateTimeImmutable $closedAt = null;
 
     public function __construct(?\DateTimeImmutable $createdAt = null)

@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
@@ -16,11 +17,13 @@ class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['ticket:list', 'ticket:item'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 80, unique: true)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 80)]
+    #[Groups(['ticket:list', 'ticket:item'])]
     private ?string $name = null;
 
     /**
