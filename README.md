@@ -24,7 +24,8 @@ Les clients ouvrent des tickets et échangent avec le support. Les agents traite
 |---|---|
 | Back-end | PHP 8.3, Symfony 7.4 (LTS) |
 | Données | Doctrine ORM 3, Doctrine Migrations, MySQL 8.4 |
-| Front-end | Twig, Bootstrap 5, Vue.js 3 (Composition API, `<script setup lang="ts">`), TypeScript, Vite |
+| Front-end | Twig + Twig Components, Vue.js 3 (Composition API, `<script setup lang="ts">`), TypeScript, Vite |
+| UI | Tailwind CSS v4, shadcn/ui : [Symfony UX Toolkit](https://ux.symfony.com/toolkit) côté Twig, [shadcn-vue](https://www.shadcn-vue.com/) côté Vue |
 | Sécurité | Security bundle, form login, access token authenticator, voters, CSRF |
 | Tests | PHPUnit 12, WebTestCase, DAMA Doctrine Test Bundle |
 | Qualité | PHPStan (niveau 6, extensions Symfony et Doctrine), vue-tsc |
@@ -105,6 +106,7 @@ Les erreurs suivent le format `application/problem+json`. Une requête invalide 
 - **Logique métier dans les entités** : `Ticket::assignTo()` fait passer un ticket ouvert « en cours », `Ticket::close()` horodate la fermeture.
 - **Requêtes avec jointures explicites** (`addSelect`) et `Paginator` Doctrine pour éviter le problème N+1 sur les listes.
 - **Jetons d'API hachés** : une fuite de la base ne donne pas accès à l'API.
+- **Un seul design system** : les pages Twig utilisent les composants shadcn de Symfony UX Toolkit (`<twig:Button>`, `<twig:Card>`…) et un thème de formulaire maison, le tableau de bord utilise shadcn-vue ; les deux partagent les mêmes variables CSS Tailwind.
 - **Composable `useDashboard`** : l'état, le chargement et l'assignation du tableau de bord sont isolés de l'affichage ; les composants ne reçoivent que des props typées.
 - **Tests isolés par transaction** (DAMA) : chaque test crée ses propres données et la base est restaurée automatiquement.
 
@@ -133,7 +135,11 @@ src/
 ├── Repository/         Requêtes Doctrine et filtres
 └── Security/           Voter et authentification par jeton
 assets/
+├── components/ui/      Composants shadcn-vue
 ├── dashboard/          Composants Vue (.vue), composable, client API et types TypeScript
-└── styles/             Feuille de style de l'application
+└── styles/             Tailwind CSS et thème shadcn
+templates/
+├── components/         Composants Twig shadcn (UX Toolkit) et badges métier
+└── form/               Thème de formulaire shadcn
 tests/                  Tests unitaires et fonctionnels
 ```
