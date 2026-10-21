@@ -1,0 +1,6 @@
+pentatrion_vite:
+    build_directory: build
+
+when@prod:
+    pentatrion_vite:
+        cache: true

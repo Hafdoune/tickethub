@@ -1,0 +1,21 @@
+{
+    "name": "tickethub",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "typecheck": "vue-tsc --noEmit"
+    },
+    "dependencies": {
+        "vue": "^3.5.44"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^6.0.10",
+        "@vue/tsconfig": "^0.9.1",
+        "typescript": "~5.9",
+        "vite": "^8.3.5",
+        "vite-plugin-symfony": "^8.2.4",
+        "vue-tsc": "^3.3.13"
+    }
+}

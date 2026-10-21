@@ -2,7 +2,15 @@
 
 {% block title %}Tableau de bord · TicketHub{% endblock %}
 
-{% block importmap %}{{ importmap(['app', 'dashboard']) }}{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    {{ vite_entry_link_tags('dashboard') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ vite_entry_script_tags('dashboard') }}
+{% endblock %}
 
 {% block body %}
     <div id="dashboard"
