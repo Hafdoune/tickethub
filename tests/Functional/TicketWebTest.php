@@ -66,7 +66,7 @@ final class TicketWebTest extends WebTestCase
         self::assertResponseRedirects();
         $client->followRedirect();
         self::assertSelectorTextContains('h1', 'Carte SIM non activée');
-        self::assertSelectorTextContains('.alert-success', 'créé');
+        self::assertSelectorTextContains('[data-flash="success"]', 'créé');
     }
 
     public function testInvalidTicketShowsErrors(): void
@@ -79,7 +79,7 @@ final class TicketWebTest extends WebTestCase
         $client->submitForm('Envoyer le ticket', ['ticket[title]' => 'abc', 'ticket[description]' => '']);
 
         self::assertResponseStatusCodeSame(422);
-        self::assertSelectorExists('.invalid-feedback');
+        self::assertSelectorExists('[data-slot="field-error"]');
     }
 
     public function testOnlyAgentsSeeTheTreatmentPanel(): void
@@ -123,7 +123,7 @@ final class TicketWebTest extends WebTestCase
 
         self::assertResponseRedirects();
         $client->followRedirect();
-        self::assertAnySelectorTextContains('.comment', 'Le problème est revenu ce soir.');
-        self::assertSelectorTextContains('h1 + .badge', 'En cours');
+        self::assertAnySelectorTextContains('[data-comment]', 'Le problème est revenu ce soir.');
+        self::assertSelectorTextContains('[data-ticket-header] [data-status]', 'En cours');
     }
 }
