@@ -89,7 +89,9 @@ class AppFixtures extends Fixture
      */
     private function createTicket(Generator $faker, User $author, array $agents, array $categories): Ticket
     {
-        $ticket = (new Ticket())
+        $createdAt = \DateTimeImmutable::createFromMutable($faker->dateTimeBetween('-60 days', '-1 hour'));
+
+        $ticket = (new Ticket($createdAt))
             ->setTitle($faker->randomElement(self::SUBJECTS))
             ->setDescription($faker->paragraphs(2, true))
             ->setPriority($faker->randomElement(TicketPriority::cases()))
@@ -103,7 +105,7 @@ class AppFixtures extends Fixture
 
             foreach (range(1, $faker->numberBetween(1, 3)) as $n) {
                 $ticket->addComment(
-                    (new Comment())
+                    (new Comment($createdAt->modify("+{$n} hours")))
                         ->setAuthor($n % 2 === 1 ? $agent : $author)
                         ->setContent($faker->sentences(2, true))
                 );

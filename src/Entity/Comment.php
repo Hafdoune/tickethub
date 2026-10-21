@@ -31,9 +31,9 @@ class Comment
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
-    public function __construct()
+    public function __construct(?\DateTimeImmutable $createdAt = null)
     {
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = $createdAt ?? new \DateTimeImmutable();
     }
 
     public function getId(): ?int

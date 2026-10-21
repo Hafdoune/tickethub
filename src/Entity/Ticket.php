@@ -66,10 +66,10 @@ class Ticket
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $closedAt = null;
 
-    public function __construct()
+    public function __construct(?\DateTimeImmutable $createdAt = null)
     {
         $this->comments = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = $createdAt ?? new \DateTimeImmutable();
         $this->updatedAt = $this->createdAt;
     }
 
