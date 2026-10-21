@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { RefreshCw, TriangleAlert } from '@lucide/vue';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import CategoryBars from './CategoryBars.vue';
 import StatCards from './StatCards.vue';
 import TicketQueue from './TicketQueue.vue';
@@ -13,26 +16,36 @@ const { data, loading, error, updatedAt, busy, unassigned, urgent, load, assign 
 </script>
 
 <template>
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <h1 class="h3 mb-0">Tableau de bord</h1>
-        <div class="small text-secondary">
-            <span v-if="updatedAt">Mis à jour à {{ updatedAt.toLocaleTimeString('fr-FR') }}</span>
-            <button type="button" class="btn btn-link btn-sm" @click="load">Actualiser</button>
-        </div>
-    </div>
-
-    <div v-if="error" class="alert alert-danger">{{ error }}</div>
-    <div v-if="loading" class="text-center text-secondary py-5">Chargement…</div>
-
-    <template v-else>
-        <StatCards :counts="data.counts" :unassigned="unassigned" :urgent="urgent" />
-        <div class="row g-4">
-            <div class="col-lg-9">
-                <TicketQueue :tickets="data.tickets" :me="data.me" :busy="busy" @assign="assign" />
+    <div class="space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h1 class="text-2xl font-semibold tracking-tight">Tableau de bord</h1>
+                <p class="text-sm text-muted-foreground">File d'attente du support, actualisée toutes les 30 secondes.</p>
             </div>
-            <div class="col-lg-3">
+            <div class="flex items-center gap-3 text-sm text-muted-foreground">
+                <span v-if="updatedAt">Mis à jour à {{ updatedAt.toLocaleTimeString('fr-FR') }}</span>
+                <Button variant="outline" size="sm" @click="load">
+                    <RefreshCw />
+                    Actualiser
+                </Button>
+            </div>
+        </div>
+
+        <Alert v-if="error" variant="destructive">
+            <TriangleAlert />
+            <AlertDescription>{{ error }}</AlertDescription>
+        </Alert>
+
+        <div v-if="loading" class="py-16 text-center text-muted-foreground">Chargement…</div>
+
+        <template v-else>
+            <StatCards :counts="data.counts" :unassigned="unassigned" :urgent="urgent" />
+            <div class="grid gap-6 lg:grid-cols-4">
+                <div class="lg:col-span-3">
+                    <TicketQueue :tickets="data.tickets" :me="data.me" :busy="busy" @assign="assign" />
+                </div>
                 <CategoryBars :items="data.byCategory" />
             </div>
-        </div>
-    </template>
+        </template>
+    </div>
 </template>

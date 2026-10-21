@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { UserPlus } from '@lucide/vue';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { priorityTone, statusTone } from './tones';
 import type { DashboardTicket, TicketPriority } from './types';
 
 type Filter = 'all' | 'unassigned' | 'mine' | 'urgent';
@@ -66,70 +75,63 @@ function age(iso: string): string {
 </script>
 
 <template>
-    <div class="card shadow-sm">
-        <div class="card-body border-bottom">
-            <div class="d-flex flex-wrap gap-2 align-items-center">
-                <div class="btn-group btn-group-sm" role="group">
-                    <button
-                        v-for="f in filters"
-                        :key="f.key"
-                        type="button"
-                        class="btn"
-                        :class="filter === f.key ? 'btn-dark' : 'btn-outline-secondary'"
-                        @click="filter = f.key"
-                    >
-                        {{ f.label }}
-                    </button>
-                </div>
-                <input v-model="search" type="search" class="form-control form-control-sm ms-auto toolbar-field" placeholder="Sujet ou client">
-                <select v-model="sortBy" class="form-select form-select-sm toolbar-field">
-                    <option value="priority">Tri : priorité</option>
-                    <option value="age">Tri : ancienneté</option>
-                </select>
+    <Card class="gap-0 py-0">
+        <CardHeader class="flex flex-wrap items-center gap-3 border-b px-4 py-3">
+            <Tabs v-model="filter">
+                <TabsList>
+                    <TabsTrigger v-for="f in filters" :key="f.key" :value="f.key">{{ f.label }}</TabsTrigger>
+                </TabsList>
+            </Tabs>
+            <div class="ml-auto flex flex-wrap gap-2">
+                <Input v-model="search" type="search" placeholder="Sujet ou client" class="h-9 w-56" />
+                <Select v-model="sortBy">
+                    <SelectTrigger class="w-44">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="priority">Tri : priorité</SelectItem>
+                        <SelectItem value="age">Tri : ancienneté</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Sujet</th>
-                        <th>Client</th>
-                        <th>Priorité</th>
-                        <th>Statut</th>
-                        <th>Attente</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="t in visible" :key="t.id">
-                        <td class="text-secondary">{{ t.id }}</td>
-                        <td>
-                            <a :href="t.url" class="text-decoration-none fw-medium">{{ t.title }}</a>
-                            <div class="small text-secondary">{{ t.category }}</div>
-                        </td>
-                        <td>{{ t.author }}</td>
-                        <td><span class="badge" :class="`badge-priority-${t.priority}`">{{ t.priorityLabel }}</span></td>
-                        <td><span class="badge" :class="`badge-status-${t.status}`">{{ t.statusLabel }}</span></td>
-                        <td class="text-nowrap small">{{ age(t.createdAt) }}</td>
-                        <td class="text-end text-nowrap">
-                            <span v-if="t.assignee" class="small text-secondary">{{ t.assignee.id === me ? 'Moi' : t.assignee.name }}</span>
-                            <button v-else type="button" class="btn btn-sm btn-outline-dark" :disabled="busy[t.id]" @click="emit('assign', t)">
+        </CardHeader>
+        <CardContent class="px-0">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead class="pl-4">#</TableHead>
+                        <TableHead>Sujet</TableHead>
+                        <TableHead>Client</TableHead>
+                        <TableHead>Priorité</TableHead>
+                        <TableHead>Statut</TableHead>
+                        <TableHead>Attente</TableHead>
+                        <TableHead class="pr-4 text-right"><span class="sr-only">Action</span></TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <TableRow v-for="t in visible" :key="t.id" :data-ticket="t.id">
+                        <TableCell class="pl-4 text-muted-foreground">{{ t.id }}</TableCell>
+                        <TableCell class="whitespace-normal">
+                            <a :href="t.url" class="font-medium hover:underline">{{ t.title }}</a>
+                            <div class="text-xs text-muted-foreground">{{ t.category }}</div>
+                        </TableCell>
+                        <TableCell>{{ t.author }}</TableCell>
+                        <TableCell><Badge variant="outline" :class="priorityTone[t.priority]">{{ t.priorityLabel }}</Badge></TableCell>
+                        <TableCell><Badge variant="outline" :class="statusTone[t.status]">{{ t.statusLabel }}</Badge></TableCell>
+                        <TableCell class="text-muted-foreground">{{ age(t.createdAt) }}</TableCell>
+                        <TableCell class="pr-4 text-right">
+                            <span v-if="t.assignee" class="text-sm text-muted-foreground">{{ t.assignee.id === me ? 'Moi' : t.assignee.name }}</span>
+                            <Button v-else size="sm" variant="outline" :disabled="busy[t.id]" @click="emit('assign', t)">
+                                <UserPlus />
                                 {{ busy[t.id] ? '…' : "Me l'assigner" }}
-                            </button>
-                        </td>
-                    </tr>
-                    <tr v-if="!visible.length">
-                        <td colspan="7" class="text-center text-secondary py-4">Rien à traiter ici.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+                            </Button>
+                        </TableCell>
+                    </TableRow>
+                    <TableRow v-if="!visible.length">
+                        <TableCell colspan="7" class="py-10 text-center text-muted-foreground">Rien à traiter ici.</TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+        </CardContent>
+    </Card>
 </template>
-
-<style scoped>
-.toolbar-field {
-    max-width: 220px;
-}
-</style>
