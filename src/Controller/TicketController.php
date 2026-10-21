@@ -148,6 +148,9 @@ class TicketController extends AbstractController
         return $this->redirectToRoute('ticket_show', ['id' => $ticket->getId()]);
     }
 
+    /**
+     * @return FormInterface<Comment|null>
+     */
     private function commentForm(Ticket $ticket, ?Comment $comment = null): FormInterface
     {
         return $this->createForm(CommentType::class, $comment, [
@@ -155,6 +158,9 @@ class TicketController extends AbstractController
         ]);
     }
 
+    /**
+     * @return FormInterface<Ticket>
+     */
     private function manageForm(Ticket $ticket): FormInterface
     {
         return $this->createForm(TicketManageType::class, $ticket, [
