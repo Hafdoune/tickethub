@@ -59,6 +59,42 @@ class TicketRepository extends ServiceEntityRepository
         return $counts;
     }
 
+    /**
+     * @return list<Ticket>
+     */
+    public function findActive(int $limit = 200): array
+    {
+        return $this->createQueryBuilder('t')
+            ->addSelect('a', 'c', 'asg')
+            ->join('t.author', 'a')
+            ->join('t.category', 'c')
+            ->leftJoin('t.assignee', 'asg')
+            ->where('t.status != :closed')
+            ->setParameter('closed', TicketStatus::Closed)
+            ->orderBy('t.createdAt', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return list<array{name: string, total: int}>
+     */
+    public function countActiveByCategory(): array
+    {
+        $rows = $this->createQueryBuilder('t')
+            ->select('c.name AS name', 'COUNT(t.id) AS total')
+            ->join('t.category', 'c')
+            ->where('t.status != :closed')
+            ->setParameter('closed', TicketStatus::Closed)
+            ->groupBy('c.id')
+            ->orderBy('total', 'DESC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_map(static fn (array $r) => ['name' => $r['name'], 'total' => (int) $r['total']], $rows);
+    }
+
     private function visibleFor(User $user): QueryBuilder
     {
         $qb = $this->createQueryBuilder('t')

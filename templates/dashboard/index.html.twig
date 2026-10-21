@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord · TicketHub{% endblock %}
+
+{% block importmap %}{{ importmap(['app', 'dashboard']) }}{% endblock %}
+
+{% block body %}
+    <div id="dashboard"
+         data-url="{{ path('dashboard_data') }}"
+         data-csrf="{{ csrf_token(csrf_id) }}">
+        <div class="text-center text-secondary py-5">Chargement du tableau de bord…</div>
+    </div>
+{% endblock %}
