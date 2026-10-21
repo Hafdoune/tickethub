@@ -1,0 +1,8 @@
+{%- props status -%}
+{%- set tones = {
+    open: 'border-blue-200 bg-blue-50 text-blue-700',
+    in_progress: 'border-amber-200 bg-amber-50 text-amber-700',
+    resolved: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    closed: 'border-border bg-muted text-muted-foreground',
+} -%}
+<twig:Badge variant="outline" class="{{ tones[status.value] }}" data-status="{{ status.value }}">{{ status.label }}</twig:Badge>

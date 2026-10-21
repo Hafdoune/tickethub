@@ -3,15 +3,15 @@
 {% block title %}Modifier le ticket #{{ ticket.id }} · TicketHub{% endblock %}
 
 {% block body %}
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <a href="{{ path('ticket_show', {id: ticket.id}) }}" class="small text-decoration-none">← Retour au ticket</a>
-            <h1 class="h3 my-3">Modifier le ticket #{{ ticket.id }}</h1>
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    {{ include('ticket/_form.html.twig', {button_label: 'Enregistrer'}) }}
-                </div>
-            </div>
-        </div>
+    <div class="mx-auto max-w-2xl">
+        <a href="{{ path('ticket_show', {id: ticket.id}) }}" class="text-sm text-muted-foreground hover:text-foreground">← Retour au ticket</a>
+        <twig:Card class="mt-3">
+            <twig:Card:Header>
+                <twig:Card:Title class="text-xl">Modifier le ticket #{{ ticket.id }}</twig:Card:Title>
+            </twig:Card:Header>
+            <twig:Card:Content>
+                {{ include('ticket/_form.html.twig', {button_label: 'Enregistrer'}) }}
+            </twig:Card:Content>
+        </twig:Card>
     </div>
 {% endblock %}

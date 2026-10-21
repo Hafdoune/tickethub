@@ -1,84 +1,91 @@
 {% extends 'base.html.twig' %}
-{% import 'ticket/_badges.html.twig' as badges %}
 
 {% block title %}Tickets · TicketHub{% endblock %}
 
 {% block body %}
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <h1 class="h3 mb-0">{{ is_granted('ROLE_AGENT') ? 'Tous les tickets' : 'Mes tickets' }}</h1>
-        <span class="text-secondary small">{{ tickets|length }} ticket(s)</span>
+    {% set is_agent = is_granted('ROLE_AGENT') %}
+    {% set query = app.request.query %}
+
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-2">
+        <div>
+            <h1 class="text-2xl font-semibold tracking-tight">{{ is_agent ? 'Tous les tickets' : 'Mes tickets' }}</h1>
+            <p class="text-sm text-muted-foreground">{{ tickets|length }} ticket(s)</p>
+        </div>
     </div>
 
-    <form class="row g-2 mb-3" method="get">
-        <div class="col-md-5">
-            <input type="search" name="q" value="{{ app.request.query.get('q') }}" class="form-control" placeholder="Rechercher un ticket">
-        </div>
-        <div class="col-md-3">
-            <select name="status" class="form-select">
-                <option value="">Tous les statuts</option>
-                {% for s in enum('App\\Enum\\TicketStatus').cases() %}
-                    <option value="{{ s.value }}" {{ app.request.query.get('status') == s.value ? 'selected' }}>{{ s.label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select name="priority" class="form-select">
-                <option value="">Priorité</option>
-                {% for p in enum('App\\Enum\\TicketPriority').cases() %}
-                    <option value="{{ p.value }}" {{ app.request.query.get('priority') == p.value ? 'selected' }}>{{ p.label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2 d-grid">
-            <button class="btn btn-outline-dark" type="submit">Filtrer</button>
-        </div>
+    <form method="get" class="mb-4 grid gap-2 md:grid-cols-[1fr_200px_160px_auto]">
+        <twig:Input type="search" name="q" value="{{ query.get('q') }}" placeholder="Rechercher un ticket" class="h-9" />
+        <twig:Select name="status" class="h-9">
+            <option value="">Tous les statuts</option>
+            {% for s in enum('App\\Enum\\TicketStatus').cases() %}
+                <option value="{{ s.value }}" {{ query.get('status') == s.value ? 'selected' }}>{{ s.label }}</option>
+            {% endfor %}
+        </twig:Select>
+        <twig:Select name="priority" class="h-9">
+            <option value="">Priorité</option>
+            {% for p in enum('App\\Enum\\TicketPriority').cases() %}
+                <option value="{{ p.value }}" {{ query.get('priority') == p.value ? 'selected' }}>{{ p.label }}</option>
+            {% endfor %}
+        </twig:Select>
+        <twig:Button type="submit" variant="outline" size="lg">Filtrer</twig:Button>
     </form>
 
-    <div class="card shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Sujet</th>
-                        <th>Catégorie</th>
-                        <th>Priorité</th>
-                        <th>Statut</th>
-                        {% if is_granted('ROLE_AGENT') %}<th>Client</th><th>Agent</th>{% endif %}
-                        <th>Créé le</th>
-                    </tr>
-                </thead>
-                <tbody>
+    <twig:Card>
+        {% if tickets|length %}
+            <twig:Table>
+                <twig:Table:Header>
+                    <twig:Table:Row>
+                        <twig:Table:Head class="pl-4">#</twig:Table:Head>
+                        <twig:Table:Head>Sujet</twig:Table:Head>
+                        <twig:Table:Head>Catégorie</twig:Table:Head>
+                        <twig:Table:Head>Priorité</twig:Table:Head>
+                        <twig:Table:Head>Statut</twig:Table:Head>
+                        {% if is_agent %}
+                            <twig:Table:Head>Client</twig:Table:Head>
+                            <twig:Table:Head>Agent</twig:Table:Head>
+                        {% endif %}
+                        <twig:Table:Head class="pr-4">Créé le</twig:Table:Head>
+                    </twig:Table:Row>
+                </twig:Table:Header>
+                <twig:Table:Body data-tickets>
                     {% for ticket in tickets %}
-                        <tr class="ticket-row">
-                            <td class="text-secondary">{{ ticket.id }}</td>
-                            <td><a href="{{ path('ticket_show', {id: ticket.id}) }}" class="text-decoration-none fw-medium">{{ ticket.title }}</a></td>
-                            <td>{{ ticket.category }}</td>
-                            <td>{{ badges.priority(ticket.priority) }}</td>
-                            <td>{{ badges.status(ticket.status) }}</td>
-                            {% if is_granted('ROLE_AGENT') %}
-                                <td>{{ ticket.author }}</td>
-                                <td>{{ ticket.assignee ?? '—' }}</td>
+                        <twig:Table:Row>
+                            <twig:Table:Cell class="pl-4 text-muted-foreground">{{ ticket.id }}</twig:Table:Cell>
+                            <twig:Table:Cell class="whitespace-normal">
+                                <a href="{{ path('ticket_show', {id: ticket.id}) }}" class="font-medium hover:underline">{{ ticket.title }}</a>
+                            </twig:Table:Cell>
+                            <twig:Table:Cell>{{ ticket.category }}</twig:Table:Cell>
+                            <twig:Table:Cell><twig:PriorityBadge :priority="ticket.priority" /></twig:Table:Cell>
+                            <twig:Table:Cell><twig:StatusBadge :status="ticket.status" /></twig:Table:Cell>
+                            {% if is_agent %}
+                                <twig:Table:Cell>{{ ticket.author }}</twig:Table:Cell>
+                                <twig:Table:Cell class="text-muted-foreground">{{ ticket.assignee ?? '—' }}</twig:Table:Cell>
                             {% endif %}
-                            <td class="text-nowrap">{{ ticket.createdAt|date('d/m/Y H:i') }}</td>
-                        </tr>
-                    {% else %}
-                        <tr><td colspan="8" class="text-center text-secondary py-4">Aucun ticket.</td></tr>
+                            <twig:Table:Cell class="pr-4 text-muted-foreground">{{ ticket.createdAt|date('d/m/Y H:i') }}</twig:Table:Cell>
+                        </twig:Table:Row>
                     {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+                </twig:Table:Body>
+            </twig:Table>
+        {% else %}
+            <twig:Empty>
+                <twig:Empty:Header>
+                    <twig:Empty:Title>Aucun ticket</twig:Empty:Title>
+                    <twig:Empty:Description>Aucun ticket ne correspond à ces critères.</twig:Empty:Description>
+                </twig:Empty:Header>
+                <twig:Button as="a" href="{{ path('ticket_new') }}">Ouvrir un ticket</twig:Button>
+            </twig:Empty>
+        {% endif %}
+    </twig:Card>
 
     {% if pages > 1 %}
-        <nav class="mt-3">
-            <ul class="pagination justify-content-center">
+        <twig:Pagination class="mt-4">
+            <twig:Pagination:Content>
                 {% for p in 1..pages %}
-                    <li class="page-item {{ p == page ? 'active' }}">
-                        <a class="page-link" href="{{ path('ticket_index', app.request.query.all|merge({page: p})) }}">{{ p }}</a>
-                    </li>
+                    <twig:Pagination:Item>
+                        <twig:Pagination:Link href="{{ path('ticket_index', query.all|merge({page: p})) }}" :active="p == page">{{ p }}</twig:Pagination:Link>
+                    </twig:Pagination:Item>
                 {% endfor %}
-            </ul>
-        </nav>
+            </twig:Pagination:Content>
+        </twig:Pagination>
     {% endif %}
 {% endblock %}

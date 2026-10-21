@@ -3,14 +3,15 @@
 {% block title %}Nouveau ticket · TicketHub{% endblock %}
 
 {% block body %}
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <h1 class="h3 mb-3">Nouveau ticket</h1>
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    {{ include('ticket/_form.html.twig', {button_label: 'Envoyer le ticket'}) }}
-                </div>
-            </div>
-        </div>
+    <div class="mx-auto max-w-2xl">
+        <twig:Card>
+            <twig:Card:Header>
+                <twig:Card:Title class="text-xl">Nouveau ticket</twig:Card:Title>
+                <twig:Card:Description>Décrivez votre problème, un agent vous répondra rapidement.</twig:Card:Description>
+            </twig:Card:Header>
+            <twig:Card:Content>
+                {{ include('ticket/_form.html.twig', {button_label: 'Envoyer le ticket'}) }}
+            </twig:Card:Content>
+        </twig:Card>
     </div>
 {% endblock %}

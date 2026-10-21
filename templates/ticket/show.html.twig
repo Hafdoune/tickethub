@@ -1,94 +1,100 @@
 {% extends 'base.html.twig' %}
-{% import 'ticket/_badges.html.twig' as badges %}
 
 {% block title %}#{{ ticket.id }} {{ ticket.title }} · TicketHub{% endblock %}
 
 {% block body %}
-    <a href="{{ path('ticket_index') }}" class="small text-decoration-none">← Tous les tickets</a>
+    <a href="{{ path('ticket_index') }}" class="text-sm text-muted-foreground hover:text-foreground">← Tous les tickets</a>
 
-    <div class="d-flex flex-wrap align-items-center gap-2 my-3">
-        <h1 class="h3 mb-0 me-2">#{{ ticket.id }} · {{ ticket.title }}</h1>
-        {{ badges.status(ticket.status) }}
-        {{ badges.priority(ticket.priority) }}
+    <div class="mt-3 mb-6 flex flex-wrap items-center gap-2" data-ticket-header>
+        <h1 class="mr-2 text-2xl font-semibold tracking-tight">#{{ ticket.id }} · {{ ticket.title }}</h1>
+        <twig:StatusBadge :status="ticket.status" />
+        <twig:PriorityBadge :priority="ticket.priority" />
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <div class="small text-secondary mb-2">
-                        {{ ticket.author }} · {{ ticket.createdAt|date('d/m/Y à H:i') }}
-                    </div>
-                    <div class="ticket-description">{{ ticket.description|nl2br }}</div>
-                </div>
-            </div>
+    <div class="grid gap-6 lg:grid-cols-3">
+        <div class="space-y-6 lg:col-span-2">
+            <twig:Card>
+                <twig:Card:Header class="pb-3">
+                    <twig:Card:Description>{{ ticket.author }} · {{ ticket.createdAt|date('d/m/Y à H:i') }}</twig:Card:Description>
+                </twig:Card:Header>
+                <twig:Card:Content class="text-sm leading-relaxed">{{ ticket.description|nl2br }}</twig:Card:Content>
+            </twig:Card>
 
-            <h2 class="h5 mb-3">Échanges ({{ ticket.comments|length }})</h2>
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
+            <twig:Card>
+                <twig:Card:Header>
+                    <twig:Card:Title>Échanges ({{ ticket.comments|length }})</twig:Card:Title>
+                </twig:Card:Header>
+                <twig:Card:Content class="divide-y">
                     {% for comment in ticket.comments %}
-                        <div class="comment py-3 {{ comment.author.isAgent ? 'comment-agent' }}" id="comment-{{ comment.id }}">
-                            <div class="small text-secondary mb-1">
-                                <strong class="text-body">{{ comment.author }}</strong>
-                                {% if comment.author.isAgent %}<span class="badge text-bg-primary ms-1">Support</span>{% endif %}
-                                · {{ comment.createdAt|date('d/m/Y H:i') }}
+                        <div class="py-4 first:pt-0 {{ comment.author.isAgent ? 'border-l-2 border-l-primary pl-4' : '' }}" id="comment-{{ comment.id }}" data-comment>
+                            <div class="mb-1 flex items-center gap-2 text-sm">
+                                <span class="font-medium">{{ comment.author }}</span>
+                                {% if comment.author.isAgent %}<twig:Badge variant="secondary">Support</twig:Badge>{% endif %}
+                                <span class="text-muted-foreground">· {{ comment.createdAt|date('d/m/Y H:i') }}</span>
                             </div>
-                            {{ comment.content|nl2br }}
+                            <p class="text-sm leading-relaxed">{{ comment.content|nl2br }}</p>
                         </div>
                     {% else %}
-                        <p class="text-secondary mb-0">Aucun échange pour l'instant.</p>
+                        <p class="text-sm text-muted-foreground">Aucun échange pour l'instant.</p>
                     {% endfor %}
-                </div>
-            </div>
+                </twig:Card:Content>
+            </twig:Card>
 
             {% if comment_form %}
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        {{ form_start(comment_form) }}
-                            {{ form_widget(comment_form) }}
-                            <button class="btn btn-dark mt-2" type="submit">Répondre</button>
+                <twig:Card>
+                    <twig:Card:Content class="pt-6">
+                        {{ form_start(comment_form, {attr: {class: 'grid gap-3'}}) }}
+                            {{ form_widget(comment_form.content) }}
+                            {{ form_errors(comment_form.content) }}
+                            <div><twig:Button type="submit">Répondre</twig:Button></div>
                         {{ form_end(comment_form) }}
-                    </div>
-                </div>
+                    </twig:Card:Content>
+                </twig:Card>
             {% elseif ticket.closed %}
-                <div class="alert alert-secondary">Ce ticket est fermé.</div>
+                <twig:Alert>
+                    <twig:Alert:Description>Ce ticket est fermé.</twig:Alert:Description>
+                </twig:Alert>
             {% endif %}
         </div>
 
-        <div class="col-lg-4">
-            <div class="card shadow-sm mb-4">
-                <ul class="list-group list-group-flush small">
-                    <li class="list-group-item d-flex justify-content-between"><span class="text-secondary">Catégorie</span>{{ ticket.category }}</li>
-                    <li class="list-group-item d-flex justify-content-between"><span class="text-secondary">Client</span>{{ ticket.author }}</li>
-                    <li class="list-group-item d-flex justify-content-between"><span class="text-secondary">Agent</span>{{ ticket.assignee ?? 'Non assigné' }}</li>
-                    <li class="list-group-item d-flex justify-content-between"><span class="text-secondary">Mis à jour</span>{{ ticket.updatedAt|date('d/m/Y H:i') }}</li>
-                    {% if ticket.closedAt %}
-                        <li class="list-group-item d-flex justify-content-between"><span class="text-secondary">Fermé le</span>{{ ticket.closedAt|date('d/m/Y H:i') }}</li>
-                    {% endif %}
-                </ul>
-            </div>
+        <div class="space-y-6">
+            <twig:Card>
+                <twig:Card:Content class="pt-6">
+                    <dl class="grid gap-3 text-sm">
+                        <div class="flex justify-between gap-4"><dt class="text-muted-foreground">Catégorie</dt><dd>{{ ticket.category }}</dd></div>
+                        <div class="flex justify-between gap-4"><dt class="text-muted-foreground">Client</dt><dd>{{ ticket.author }}</dd></div>
+                        <div class="flex justify-between gap-4"><dt class="text-muted-foreground">Agent</dt><dd>{{ ticket.assignee ?? 'Non assigné' }}</dd></div>
+                        <div class="flex justify-between gap-4"><dt class="text-muted-foreground">Mis à jour</dt><dd>{{ ticket.updatedAt|date('d/m/Y H:i') }}</dd></div>
+                        {% if ticket.closedAt %}
+                            <div class="flex justify-between gap-4"><dt class="text-muted-foreground">Fermé le</dt><dd>{{ ticket.closedAt|date('d/m/Y H:i') }}</dd></div>
+                        {% endif %}
+                    </dl>
+                </twig:Card:Content>
+            </twig:Card>
 
             {% if manage_form %}
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h2 class="h6 mb-3">Traitement</h2>
-                        {{ form_start(manage_form) }}
+                <twig:Card>
+                    <twig:Card:Header>
+                        <twig:Card:Title>Traitement</twig:Card:Title>
+                    </twig:Card:Header>
+                    <twig:Card:Content>
+                        {{ form_start(manage_form, {attr: {class: 'grid gap-4'}}) }}
                             {{ form_row(manage_form.status) }}
                             {{ form_row(manage_form.assignee) }}
-                            <button class="btn btn-primary w-100" type="submit">Mettre à jour</button>
+                            <twig:Button type="submit" class="w-full">Mettre à jour</twig:Button>
                         {{ form_end(manage_form) }}
-                    </div>
-                </div>
+                    </twig:Card:Content>
+                </twig:Card>
             {% endif %}
 
-            <div class="d-grid gap-2">
+            <div class="grid gap-2">
                 {% if is_granted('TICKET_EDIT', ticket) %}
-                    <a class="btn btn-outline-dark" href="{{ path('ticket_edit', {id: ticket.id}) }}">Modifier</a>
+                    <twig:Button as="a" href="{{ path('ticket_edit', {id: ticket.id}) }}" variant="outline" size="lg">Modifier</twig:Button>
                 {% endif %}
                 {% if is_granted('TICKET_CLOSE', ticket) %}
                     <form method="post" action="{{ path('ticket_close', {id: ticket.id}) }}" onsubmit="return confirm('Fermer ce ticket ?')">
                         <input type="hidden" name="_token" value="{{ csrf_token('close-ticket-' ~ ticket.id) }}">
-                        <button class="btn btn-outline-danger w-100" type="submit">Fermer le ticket</button>
+                        <twig:Button type="submit" variant="destructive" size="lg" class="w-full">Fermer le ticket</twig:Button>
                     </form>
                 {% endif %}
             </div>

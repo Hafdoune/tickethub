@@ -3,21 +3,22 @@
 {% block title %}Créer un compte · TicketHub{% endblock %}
 
 {% block body %}
-    <div class="card auth-card mx-auto shadow-sm">
-        <div class="card-body p-4">
-            <h1 class="h4 mb-4">Créer un compte</h1>
-
-            {{ form_start(form) }}
+    <twig:Card class="mx-auto mt-8 max-w-sm">
+        <twig:Card:Header>
+            <twig:Card:Title class="text-xl">Créer un compte</twig:Card:Title>
+            <twig:Card:Description>Quelques secondes suffisent pour contacter le support.</twig:Card:Description>
+        </twig:Card:Header>
+        <twig:Card:Content>
+            {{ form_start(form, {attr: {class: 'grid gap-4'}}) }}
                 {{ form_row(form.fullName) }}
                 {{ form_row(form.email) }}
                 {{ form_row(form.plainPassword.first) }}
                 {{ form_row(form.plainPassword.second) }}
-                <button class="btn btn-dark w-100" type="submit">Créer mon compte</button>
+                <twig:Button type="submit" class="w-full">Créer mon compte</twig:Button>
             {{ form_end(form) }}
-
-            <p class="text-center small mt-3 mb-0">
-                Déjà inscrit ? <a href="{{ path('app_login') }}">Se connecter</a>
-            </p>
-        </div>
-    </div>
+        </twig:Card:Content>
+        <twig:Card:Footer class="justify-center text-sm text-muted-foreground">
+            Déjà inscrit ?&nbsp;<a href="{{ path('app_login') }}" class="font-medium text-foreground underline underline-offset-4">Se connecter</a>
+        </twig:Card:Footer>
+    </twig:Card>
 {% endblock %}

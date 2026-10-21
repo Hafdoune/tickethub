@@ -1,0 +1,8 @@
+{%- props priority -%}
+{%- set tones = {
+    low: 'border-border bg-background text-muted-foreground',
+    medium: 'border-sky-200 bg-sky-50 text-sky-700',
+    high: 'border-orange-200 bg-orange-50 text-orange-700',
+    urgent: 'border-red-200 bg-red-50 text-red-700',
+} -%}
+<twig:Badge variant="outline" class="{{ tones[priority.value] }}" data-priority="{{ priority.value }}">{{ priority.label }}</twig:Badge>

@@ -3,30 +3,33 @@
 {% block title %}Connexion · TicketHub{% endblock %}
 
 {% block body %}
-    <div class="card auth-card mx-auto shadow-sm">
-        <div class="card-body p-4">
-            <h1 class="h4 mb-4">Connexion</h1>
-
+    <twig:Card class="mx-auto mt-8 max-w-sm">
+        <twig:Card:Header>
+            <twig:Card:Title class="text-xl">Connexion</twig:Card:Title>
+            <twig:Card:Description>Accédez à vos tickets et au support.</twig:Card:Description>
+        </twig:Card:Header>
+        <twig:Card:Content>
             {% if error %}
-                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                <twig:Alert variant="destructive" class="mb-4">
+                    <twig:Alert:Description>{{ error.messageKey|trans(error.messageData, 'security') }}</twig:Alert:Description>
+                </twig:Alert>
             {% endif %}
 
-            <form method="post" action="{{ path('app_login') }}">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Email</label>
-                    <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus>
+            <form method="post" action="{{ path('app_login') }}" class="grid gap-4">
+                <div class="grid gap-2">
+                    <twig:Label for="username">Email</twig:Label>
+                    <twig:Input type="email" value="{{ last_username }}" name="_username" id="username" autocomplete="email" required autofocus />
                 </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Mot de passe</label>
-                    <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
+                <div class="grid gap-2">
+                    <twig:Label for="password">Mot de passe</twig:Label>
+                    <twig:Input type="password" name="_password" id="password" autocomplete="current-password" required />
                 </div>
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-                <button class="btn btn-dark w-100" type="submit">Se connecter</button>
+                <twig:Button type="submit" class="w-full">Se connecter</twig:Button>
             </form>
-
-            <p class="text-center small mt-3 mb-0">
-                Pas encore de compte ? <a href="{{ path('app_register') }}">Créer un compte</a>
-            </p>
-        </div>
-    </div>
+        </twig:Card:Content>
+        <twig:Card:Footer class="justify-center text-sm text-muted-foreground">
+            Pas encore de compte ?&nbsp;<a href="{{ path('app_register') }}" class="font-medium text-foreground underline underline-offset-4">Créer un compte</a>
+        </twig:Card:Footer>
+    </twig:Card>
 {% endblock %}
