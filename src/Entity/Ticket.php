@@ -177,7 +177,12 @@ class Ticket
 
     public function isAuthoredBy(User $user): bool
     {
-        return $this->author !== null && $this->author->getId() === $user->getId();
+        if ($this->author === null) {
+            return false;
+        }
+
+        return $this->author === $user
+            || ($this->author->getId() !== null && $this->author->getId() === $user->getId());
     }
 
     public function getAssignee(): ?User
