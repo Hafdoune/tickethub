@@ -41,8 +41,20 @@ jobs:
           path: ~/.composer/cache/files
           key: composer-${{ hashFiles('composer.lock') }}
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          npm ci
+
+      - name: Build front-end
+        run: |
+          npm run typecheck
+          npm run build
 
       - name: Lint
         run: |
