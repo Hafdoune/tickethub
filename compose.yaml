@@ -1,5 +1,18 @@
 
 services:
+  app:
+    build:
+      context: .
+      target: dev
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      APP_SECRET: ${APP_SECRET:-change-me-in-production}
+      DATABASE_URL: mysql://${MYSQL_USER:-app}:${MYSQL_PASSWORD:-app}@database:3306/${MYSQL_DATABASE:-tickethub}?serverVersion=8.4.0&charset=utf8mb4
+    ports:
+      - "8080:80"
+
 ###> doctrine/doctrine-bundle ###
   database:
     image: mysql:8.4

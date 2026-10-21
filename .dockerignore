@@ -1,0 +1,11 @@
+.git
+.github
+.idea
+.phpunit.cache
+/var/
+/vendor/
+/assets/vendor/
+/public/assets/
+.env.local
+.env.*.local
+compose.override.yaml
