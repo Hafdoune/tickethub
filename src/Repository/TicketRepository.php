@@ -29,6 +29,7 @@ class TicketRepository extends ServiceEntityRepository
             ->addSelect('a', 'c', 'asg')
             ->leftJoin('t.assignee', 'asg')
             ->orderBy('t.createdAt', 'DESC')
+            ->addOrderBy('t.id', 'DESC')
             ->setFirstResult(max(0, ($page - 1) * $limit))
             ->setMaxResults($limit);
 
