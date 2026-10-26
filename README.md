@@ -1,37 +1,39 @@
 # TicketHub
 
-Application de support client (helpdesk) construite avec **Symfony 7.4**, **Doctrine**, **MySQL** et **Vue.js**.
+A customer support (helpdesk) application built with **Symfony 7.4**, **Doctrine**, **MySQL** and **Vue.js**.
 
-Les clients ouvrent des tickets et échangent avec le support. Les agents traitent la file d'attente, s'assignent les tickets, changent leur statut et suivent l'activité depuis un tableau de bord en Vue.js. Une API REST permet d'intégrer TicketHub à d'autres outils.
+Customers open tickets and talk with the support team. Agents work through the queue, assign tickets to themselves, update their status and follow activity from a Vue.js dashboard. A REST API lets other tools integrate with TicketHub.
 
 ![CI](https://github.com/Hafdoune/tickethub/actions/workflows/ci.yml/badge.svg)
 
-## Fonctionnalités
+## Features
 
-- Authentification par formulaire, inscription, rôles hiérarchiques (`ROLE_USER` < `ROLE_AGENT` < `ROLE_ADMIN`)
-- Tickets avec catégorie, priorité et cycle de vie (`ouvert → en cours → résolu → fermé`)
-- Fil d'échanges client / support ; une réponse du client rouvre un ticket résolu
-- Règles d'accès centralisées dans un **Voter** (`TicketVoter`) : un client ne voit que ses tickets et ne peut modifier un ticket qu'avant sa prise en charge
-- Liste filtrable et paginée (statut, priorité, recherche plein texte)
-- Tableau de bord agent en **Vue.js 3 + TypeScript** (composants `.vue` en `<script setup>`) : compteurs, file d'attente triable, « me l'assigner », rafraîchissement automatique
-- **API REST JSON** authentifiée par jeton Bearer
-- Tests unitaires et fonctionnels, intégration continue GitHub Actions
-- Image Docker basée sur FrankenPHP
+- Form login, registration and hierarchical roles (`ROLE_USER` < `ROLE_AGENT` < `ROLE_ADMIN`)
+- Tickets with a category, a priority and a lifecycle (`open → in progress → resolved → closed`)
+- Customer / support conversation thread; a customer reply reopens a resolved ticket
+- Access rules centralised in a **Voter** (`TicketVoter`): customers only see their own tickets and can only edit a ticket before an agent picks it up
+- Filterable, paginated ticket list (status, priority, full-text search)
+- Agent dashboard in **Vue.js 3 + TypeScript** (`.vue` components with `<script setup>`): counters, sortable queue, "assign to me", auto-refresh
+- **JSON REST API** authenticated with Bearer tokens
+- Unit and functional tests, continuous integration with GitHub Actions
+- Docker image based on FrankenPHP
+
+The user interface is in French, as the app targets French-speaking customers.
 
 ## Stack
 
-| Couche | Choix |
+| Layer | Choice |
 |---|---|
-| Back-end | PHP 8.3, Symfony 7.4 (LTS) |
-| Données | Doctrine ORM 3, Doctrine Migrations, MySQL 8.4 |
-| Front-end | Twig + Twig Components, Vue.js 3 (Composition API, `<script setup lang="ts">`), TypeScript, Vite |
-| UI | Tailwind CSS v4, shadcn/ui : [Symfony UX Toolkit](https://ux.symfony.com/toolkit) côté Twig, [shadcn-vue](https://www.shadcn-vue.com/) côté Vue |
-| Sécurité | Security bundle, form login, access token authenticator, voters, CSRF |
+| Back end | PHP 8.3, Symfony 7.4 (LTS) |
+| Data | Doctrine ORM 3, Doctrine Migrations, MySQL 8.4 |
+| Front end | Twig + Twig Components, Vue.js 3 (Composition API, `<script setup lang="ts">`), TypeScript, Vite |
+| UI | Tailwind CSS v4, shadcn/ui: [Symfony UX Toolkit](https://ux.symfony.com/toolkit) for Twig, [shadcn-vue](https://www.shadcn-vue.com/) for Vue |
+| Security | Security bundle, form login, access token authenticator, voters, CSRF |
 | Tests | PHPUnit 12, WebTestCase, DAMA Doctrine Test Bundle |
-| Qualité | PHPStan (niveau 6, extensions Symfony et Doctrine), vue-tsc |
-| Infra | Docker, FrankenPHP, GitHub Actions |
+| Quality | PHPStan (level 6, Symfony and Doctrine extensions), vue-tsc |
+| Infrastructure | Docker, FrankenPHP, GitHub Actions |
 
-## Démarrer avec Docker
+## Run with Docker
 
 ```bash
 git clone https://github.com/Hafdoune/tickethub.git
@@ -40,11 +42,11 @@ docker compose up -d --build
 docker compose exec app php bin/console doctrine:fixtures:load --no-interaction
 ```
 
-L'application est disponible sur http://localhost:8080. Les migrations sont exécutées au démarrage du conteneur.
+The app is available at http://localhost:8080. Migrations run when the container starts.
 
-## Démarrer en local
+## Run locally
 
-Prérequis : PHP 8.2+, Composer, Node.js 20+, Docker (pour MySQL) ou un MySQL local.
+Requirements: PHP 8.2+, Composer, Node.js 20+, and Docker (for MySQL) or a local MySQL server.
 
 ```bash
 composer install
@@ -56,38 +58,38 @@ php bin/console doctrine:fixtures:load --no-interaction
 symfony serve
 ```
 
-Pendant le développement du front, `npm run dev` lance le serveur Vite avec rechargement à chaud ; le bundle Symfony bascule automatiquement dessus.
+While working on the front end, `npm run dev` starts the Vite dev server with hot reload; the Symfony bundle switches to it automatically.
 
-La base Docker écoute sur le port `3307` pour ne pas entrer en conflit avec un MySQL local. Pour utiliser une autre base, surcharger `DATABASE_URL` dans `.env.local`.
+The Docker database listens on port `3307` so it doesn't clash with a local MySQL. To use another database, override `DATABASE_URL` in `.env.local`.
 
-## Comptes de démonstration
+## Demo accounts
 
-Mot de passe pour tous les comptes : `password`
+Password for every account: `password`
 
-| Rôle | Email |
+| Role | Email |
 |---|---|
 | Admin | `admin@tickethub.test` |
 | Agent | `agent@tickethub.test` |
 | Agent | `agent2@tickethub.test` |
-| Client | `client@tickethub.test` |
+| Customer | `client@tickethub.test` |
 
 ## API
 
-Générer un jeton (il n'est affiché qu'une fois, seule son empreinte SHA-256 est stockée) :
+Generate a token (it is shown only once; only its SHA-256 hash is stored):
 
 ```bash
 php bin/console app:api-token client@tickethub.test
 ```
 
-| Méthode | Route | Description |
+| Method | Route | Description |
 |---|---|---|
-| `GET` | `/api/me` | Utilisateur courant |
-| `GET` | `/api/tickets` | Liste paginée (`page`, `limit`, `status`, `priority`, `category`, `q`) |
-| `GET` | `/api/tickets/{id}` | Détail avec les échanges |
-| `POST` | `/api/tickets` | Créer un ticket |
-| `PATCH` | `/api/tickets/{id}` | Modifier le contenu (auteur) ou le statut / l'agent (agents) |
-| `POST` | `/api/tickets/{id}/close` | Fermer |
-| `POST` | `/api/tickets/{id}/comments` | Répondre |
+| `GET` | `/api/me` | Current user |
+| `GET` | `/api/tickets` | Paginated list (`page`, `limit`, `status`, `priority`, `category`, `q`) |
+| `GET` | `/api/tickets/{id}` | Ticket details with the conversation |
+| `POST` | `/api/tickets` | Create a ticket |
+| `PATCH` | `/api/tickets/{id}` | Edit the content (author) or the status / assignee (agents) |
+| `POST` | `/api/tickets/{id}/close` | Close a ticket |
+| `POST` | `/api/tickets/{id}/comments` | Reply |
 
 ```bash
 curl -X POST http://localhost:8080/api/tickets \
@@ -96,19 +98,19 @@ curl -X POST http://localhost:8080/api/tickets \
   -d '{"title":"Box sans connexion","description":"Plus d internet depuis ce matin.","categoryId":1,"priority":"high"}'
 ```
 
-Les erreurs suivent le format `application/problem+json`. Une requête invalide renvoie `422` avec la liste des violations par champ.
+Errors use the `application/problem+json` format. An invalid request returns `422` with the list of violations per field.
 
-## Choix techniques
+## Design decisions
 
-- **Voter plutôt que des `if` dans les contrôleurs** : toutes les règles d'accès à un ticket sont au même endroit et testées unitairement. Les contrôleurs n'utilisent que `#[IsGranted(TicketVoter::EDIT, 'ticket')]`.
-- **DTO + `#[MapRequestPayload]`** pour l'API : le JSON est désérialisé et validé avant d'entrer dans le contrôleur ; les entités ne sont jamais exposées à la désérialisation.
-- **Groupes de sérialisation** (`ticket:list`, `ticket:item`) pour contrôler les champs exposés (pas d'email ni de rôles dans les réponses publiques).
-- **Logique métier dans les entités** : `Ticket::assignTo()` fait passer un ticket ouvert « en cours », `Ticket::close()` horodate la fermeture.
-- **Requêtes avec jointures explicites** (`addSelect`) et `Paginator` Doctrine pour éviter le problème N+1 sur les listes.
-- **Jetons d'API hachés** : une fuite de la base ne donne pas accès à l'API.
-- **Un seul design system** : les pages Twig utilisent les composants shadcn de Symfony UX Toolkit (`<twig:Button>`, `<twig:Card>`…) et un thème de formulaire maison, le tableau de bord utilise shadcn-vue ; les deux partagent les mêmes variables CSS Tailwind.
-- **Composable `useDashboard`** : l'état, le chargement et l'assignation du tableau de bord sont isolés de l'affichage ; les composants ne reçoivent que des props typées.
-- **Tests isolés par transaction** (DAMA) : chaque test crée ses propres données et la base est restaurée automatiquement.
+- **A Voter instead of `if`s in controllers**: every access rule for a ticket lives in one place and is unit-tested. Controllers only declare `#[IsGranted(TicketVoter::EDIT, 'ticket')]`.
+- **DTOs + `#[MapRequestPayload]`** for the API: JSON is deserialised and validated before it reaches the controller; entities are never filled directly from user input.
+- **Serialization groups** (`ticket:list`, `ticket:item`) control which fields are exposed (no emails or roles in public responses).
+- **Business logic in the entities**: `Ticket::assignTo()` moves an open ticket to "in progress", `Ticket::close()` records the closing date.
+- **Explicit joins** (`addSelect`) and Doctrine's `Paginator` avoid the N+1 problem on lists.
+- **Hashed API tokens**: a database leak does not give access to the API.
+- **One design system**: Twig pages use the shadcn components from Symfony UX Toolkit (`<twig:Button>`, `<twig:Card>`…) and a custom form theme, the dashboard uses shadcn-vue; both share the same Tailwind CSS variables.
+- **`useDashboard` composable**: the dashboard's state, loading and assignment logic is separated from rendering; components only receive typed props.
+- **Tests isolated in transactions** (DAMA): each test creates its own data and the database is rolled back automatically.
 
 ## Tests
 
@@ -125,21 +127,21 @@ npm run typecheck
 
 ```
 src/
-├── Command/            Commande console (génération de jeton API)
-├── Controller/         Contrôleurs web, tableau de bord et API (Api/)
-├── DataFixtures/       Données de démonstration
-├── Dto/                Payloads validés de l'API
+├── Command/            Console command (API token generation)
+├── Controller/         Web, dashboard and API controllers (Api/)
+├── DataFixtures/       Demo data
+├── Dto/                Validated API payloads
 ├── Entity/             User, Ticket, Category, Comment
 ├── Enum/               TicketStatus, TicketPriority
-├── Form/               Formulaires Symfony
-├── Repository/         Requêtes Doctrine et filtres
-└── Security/           Voter et authentification par jeton
+├── Form/               Symfony forms
+├── Repository/         Doctrine queries and filters
+└── Security/           Voter and token authentication
 assets/
-├── components/ui/      Composants shadcn-vue
-├── dashboard/          Composants Vue (.vue), composable, client API et types TypeScript
-└── styles/             Tailwind CSS et thème shadcn
+├── components/ui/      shadcn-vue components
+├── dashboard/          Vue components (.vue), composable, API client and TypeScript types
+└── styles/             Tailwind CSS and shadcn theme
 templates/
-├── components/         Composants Twig shadcn (UX Toolkit) et badges métier
-└── form/               Thème de formulaire shadcn
-tests/                  Tests unitaires et fonctionnels
+├── components/         shadcn Twig components (UX Toolkit) and domain badges
+└── form/               shadcn form theme
+tests/                  Unit and functional tests
 ```
